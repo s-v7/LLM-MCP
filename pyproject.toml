@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.buld_meta"
+
+[project]
+name = "cars_c2s_mcp"
+version = "0.1.0"
+description: "Terminal agent + MCP-like client/server over TCP querying a vehicles DB"
+authos = [{name = "Silas Vasconcelos Cruz"}]
+dependencies = [
+	"SQLAlchemy>=2.0",
+	"pydantic>=2.7",
+	"Faker>=25.0",
+	"rich>=13.7",
+	"pytest>=8.0",
+]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+pythonpath = ["src"]
+
+
