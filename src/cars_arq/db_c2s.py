@@ -3,11 +3,11 @@ from __future__ import annotations
 from contextlib import contextmanager
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
-from .config import SETTIGNS_C2S
-from .models import Base, Car
+from .configs import Settings_Cars
+from .models_c2s import Base, Car
 
-_engine_c2s = create_engine(SETTINGS_C2S.db_uri_c2s, echo=False, future=True)
-_session_c2s = sessionmaker(bind=_engine, autoflush=False, autocommit=False, future=True)
+_engine_c2s = create_engine(Settings_Cars.db_uri_c2s, echo=False, future=True)
+_session_c2s = sessionmaker(bind=_engine_c2s, autoflush=False, expire_on_commit=False, autocommit=False, future=True)
 
 def create_schema() -> None:
     Base.metadata.create_all(_engine_c2s)

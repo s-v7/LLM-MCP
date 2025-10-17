@@ -26,7 +26,7 @@ class CarDTO(BaseModel):
     price: float
 
 class ResultPayload(BaseModel):
-    items: list[CartDTO]
+    items: list[CarDTO]
     total: int
 
 class ErrorPayload(BaseModel):
