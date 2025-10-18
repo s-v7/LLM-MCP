@@ -38,10 +38,31 @@ KNOWN_MODELS = [
     "HB20","Creta","Tucson"
 ]
 
+
+TEST_QUERIES = [
+    # corretas (devem retornar algo em geral)
+    "Sedan flex até 80.000 de 2018 pra cima",
+    "SUV a diesel entre 2016 e 2019 em SP",
+    "Toyota até 120000",
+    # “falsas”/difíceis (typos, restrições duras)
+    "quero HVR",                 # typo → HR-V
+    "tcross até 50 mil 2022",    # possivelmente muito barato → testar relax
+    "Picape elétrica 2015",      # combinação rara → relax/remover combustível
+]
+
 PRICE_RE = re.compile(r"(\d{2,3}[\.]?\d{3}|\d{4,6})(?:\s*(?:reais|r\$))?", re.I)
 
 def _norm(txt: str) -> str:
     return unicodedata.normalize("NFKD", txt or "").encode("ascii","ignore").decode("ascii").lower()
+
+def _looks_like_year(n: int) -> bool:
+    return 1900 <= n <= 2025
+
+MODEL_ANALIASES = {
+    # Normalizações de modelo
+    "hrv": "HR-V", "hvr": "HR-V", "hr-v": "HR-V",
+    "tcross": "T-Cross", "t-cross": "T-Cross", "t cross": "T-Cross",
+}
 
 def _parse_money_raw(token: str) -> Optional[int]:
     if not token:
@@ -107,12 +128,20 @@ def parse_user_query(text: str) -> dict:
             result["make"] = make
             break
 
-    # tenta detectar um token que pareça modelo e aplicar fuzzy
+    # tenta detectar um token que pareça modelo e aplicar alias/fuzzy
     tokens = [tok for tok in re.findall(r"[A-Za-zÀ-ÿ0-9\-]+", raw) if len(tok) >= 2]
-    # exemplos: "HVR" → "HR-V", "tcross" → "T-Cross"
     cand_model = None
     for tok in tokens:
-        match = _fuzzy_one(tok, KNOWN_MODELS, cutoff=0.75)
+        tnorm = _norm(tok).replace("-", " ")
+        if tnorm in MODEL_ANALIASES:
+            cand_model = MODEL_ANALIASES[tnorm]
+            break
+        match = _fuzzy_one(tnorm, [_norm(c2s) for c2s in KNOWN_MODELS], cutoff=0.72)
+        if match:
+            # re-mapeia para o nome canônico preservado maiúsculas/traços
+            dv_idx = [_norm(w) for w in KNOWN_MODELS].index(match) 
+            cand_model = KNOWN_MODELS[dv_idx]
+            
         if match:
             cand_model = match
             break
@@ -138,25 +167,42 @@ def parse_user_query(text: str) -> dict:
         if m:
             result["year_max"] = int(m.group(1))
 
-    # preço
-    m = re.search(r"\bate\s*([\d\.\, ]+(?:mil)?)", t)
-    if m:
-        p = _parse_money_raw(m.group(1))
+    # preço (prioriza marcadores de preço; evita capturar ANO como preço)
+    # 1) padrões com marcador explícito (até/no máximo/por até)
+    w = re.search(r"\b(at[eé]|no maximo|no máximo|por at[eé])\s*([\d\.\, ]+(?:mil)?)", t)
+    if w:
+        p = _parse_money_raw(w.group(2))
         if p is not None:
             result["price_max"] = p
     else:
-        m = PRICE_RE.search(raw)
-        if m:
-            p = _parse_money_raw(m.group(1))
+        w = PRICE_RE.search(raw)
+        if w:
+            p = _parse_money_raw(w.group(1))
             if p is not None:
                 result["price_max"] = p
+        
+        m2 = re.search(r"(r\$)?\s*([\d\.\, ]+(?:\s*mil)?)", t, re.I)
+        if m2:
+            has_currency = bool(m2.group(1)) or ("mil" in m2.group(2))
+            p = _parse_money_raw(m2.group(2))
+            if p is not None:
+                # Evita anos caírem como preço
+                if has_currency or not _looks_like_year(p):
+                    result["price_max"] = p
 
-    result.setdefault("limit", 20)
-    return result
+        if "price_max" in result and ("year_min" not in result and "year_max" not in result):
+            tail_year = re.search(r"(20\d{2}|19\d{2})\b", t[::-1]) 
+            if not tail_year:
+                years = re.findall(r"(20\d{2}|19\d{2})", t)
+                if years:
+                    y = int(years[-1])
+                    result["year_min"] = y
+            else:
+                pass                
+                    
+        result.setdefault("limit", 20)
+        return result
 
-# ----------------------------
-# Renderização
-# ----------------------------
 def render_results(items: list[dict]) -> None:
     if not items:
         console.print("[yellow]Nenhum veículo encontrado com esses critérios.[/yellow]")
@@ -203,85 +249,79 @@ def mcp_query(filters: dict, *, host: Optional[str] = None, port: Optional[int] 
     except Exception as e:
         return {"kind": "error", "id": env["id"], "payload": {"message": f"Falha ao parsear resposta: {e}"}}
 
-def interactive_relax(filters: dict) -> dict:
-    """
-    Quando não houver resultados, sugere correções e relaxamentos.
-    Retorna os filtros possivelmente modificados.
-    """
+def interactive_relax(filters: dict, *, ask: bool = True) -> dict:
     new_filters = dict(filters)
 
-    # Sugere relax de preço
+
     if "price_max" in new_filters:
-        console.print("[yellow]Sem resultados.[/yellow] Posso aumentar o teto de preço em ~20%?")
-        if console.input("[cyan](s/N)> [/cyan]").strip().lower() == "s":
-            new_filters["price_max"] = int(new_filters["price_max"] * 1.2)
+        if ask:
+            console.print("[yellow]Sem resultados.[/yellow] Posso aumentar o teto de preço em ~20%?")
+            if console.input("[cyan](s/N)> [/cyan]").strip().lower() == "s":
+                new_filters["price_max"] = int(new_filters["price_max"] * 1.2)
+            else:
+                new_filters["price_max"] = int(new_filters["price_max"] * 1.2)
 
-    # Sugere relax de ano mínimo
     if "year_min" in new_filters:
-        console.print("Quer considerar 1–2 anos mais antigos?")
-        if console.input("[cyan](s/N)> [/cyan]").strip().lower() == "s":
-            new_filters["year_min"] = max(1990, new_filters["year_min"] - 2)
+        if ask:
+            console.print("Quer considerar 1–2 anos mais antigos?")
+            if console.input("[cyan](s/N)> [/cyan]").strip().lower() == "s":
+                new_filters["year_min"] = max(1990, new_filters["year_min"] - 2)
+            else:
+                new_filters["year_min"] = max(1990, new_filters["year_min"] - 2)
 
-    # Sugere remover combustível
     if "fuel_type" in new_filters:
-        console.print("Tiro a preferência de combustível para ampliar opções?")
-        if console.input("[cyan](s/N)> [/cyan]").strip().lower() == "s":
-            new_filters.pop("fuel_type", None)
+        if ask:
+            console.print("Tiro a preferência de combustível para ampliar opções?")
+            if console.input("[cyan](s/N)> [/cyan]").strip().lower() == "s":
+                new_filters.pop("fuel_type", None)
+            else:
+                new_filters.pop("fuel_type", None)
 
     # Sugere remover tipo de carroceria
     if "body_type" in new_filters:
-        console.print("Posso considerar outras carrocerias além da escolhida?")
-        if console.input("[cyan](s/N)> [/cyan]").strip().lower() == "s":
-            new_filters.pop("body_type", None)
+        if ask:
+            console.print("Posso considerar outras carrocerias além da escolhida?")
+            if console.input("[cyan](s/N)> [/cyan]").strip().lower() == "s":
+                new_filters.pop("body_type", None)
+            else:
+                new_filters.pop("body_type", None)
 
-    return new_filters
-
-# ----------------------------
-# Modo testes: corretas e falsas
-# ----------------------------
-TEST_QUERIES = [
-    # corretas (devem retornar algo em geral)
-    "Sedan flex até 80.000 de 2018 pra cima",
-    "SUV a diesel entre 2016 e 2019 em SP",
-    "Toyota até 120000",
-    # “falsas”/difíceis (typos, restrições duras)
-    "quero HVR",                 # typo → HR-V
-    "tcross até 50 mil 2022",    # possivelmente muito barato → testar relax
-    "Picape elétrica 2015",      # combinação rara → relax/remover combustível
-]
-
-def run_tests():
     console.print("[bold]Rodando testes (corretas e falsas)…[/bold]")
-    for q in TEST_QUERIES:
-        console.print(f"\n[green]> {q}[/green]")
-        filters = parse_user_query(q)
-        console.print(f"[dim]Filtros:[/dim] {filters}")
-        resp = mcp_query(filters)
-        if resp.get("kind") == "error":
-            console.print(f"[red]Erro:[/red] {resp.get('payload', {}).get('message')}")
-            continue
-        items = resp.get("payload", {}).get("items", [])
-        if not items:
-            console.print("[yellow]Sem resultados. Tentando relaxar…[/yellow]")
-            relaxed = interactive_relax(filters)
-            console.print(f"[dim]Novos filtros:[/dim] {relaxed}")
-            resp = mcp_query(relaxed)
+    try:
+        for q in TEST_QUERIES:
+            console.print(f"\n[green]> {q}[/green]")
+            filters = parse_user_query(q)
+            console.print(f"[dim]Filtros:[/dim] {filters}")
+            resp = mcp_query(filters)
+            if resp.get("kind") == "error":
+                console.print(f"[red]Erro:[/red] {resp.get('payload', {}).get('message')}")
+                continue
             items = resp.get("payload", {}).get("items", [])
-        render_results(items)
+            if not items:
+                console.print("[yellow]Sem resultados. Tentando relaxar…[/yellow]")
+                relaxed = interactive_relax(filters, ask=False)  # sem prompt no modo teste
+                console.print(f"[dim]Novos filtros:[/dim] {relaxed}")
+                resp = mcp_query(relaxed)
+                items = resp.get("payload", {}).get("items", [])
+            render_results(items)
+    except (KeyboardInterrupt, EOFError):
+        console.print("\n[red]Teste interrompido pelo usuário.[/red]")
 
-# ----------------------------
-# CLI principal
-# ----------------------------
+
+
 def main() -> None:
     console.print("[bold]Bem-vindo![/bold] Me diga o que você procura. Ex.: 'Quero um sedan flex até 80.000, de 2018 pra cima'.")
     console.print("[dim]Comandos: :tests para rodar perguntas corretas e falsas; :q para sair[/dim]")
 
     while True:
-        user = console.input("\n[cyan]Você> [/cyan]")
+        try:
+            user = console.input("\n[cyan]Você> [/cyan]")
+        except (KeyboardInterrupt, EOFError):
+            console.print("\n[red]Encerrando…[/red]")
+            break
         if user.strip().lower() in {":q", "sair", "exit", "quit"}:
             break
         if user.strip().lower() == ":tests":
-            run_tests()
             continue
 
         filters = parse_user_query(user) or {}
@@ -296,13 +336,11 @@ def main() -> None:
             render_results(items)
             continue
 
-        # Sem resultados: tente corrigir/relaxar
         console.print("[yellow]Nenhum veículo encontrado.[/yellow]")
-        # Sugestão de correção se foi detectado um modelo fuzzy
         p = parse_user_query(user)   
         if p.get("model") and _norm(p["model"]) not in _norm(user):
             console.print(f"Você quis dizer [bold]{p['model']}[/bold]?")
-        filters = interactive_relax(filters)
+        filters = interactive_relax(filters, ask=True)
         console.print(f"[dim]Reconsultando:[/dim] {filters}")
         resp = mcp_query(filters)
         items = resp.get("payload", {}).get("items", [])
