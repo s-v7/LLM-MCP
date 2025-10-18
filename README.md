@@ -1,4 +1,4 @@
-LLM-MCP — Agente Virtual Interativo para Busca de Automóveis
+## LLM-MCP — Agente Virtual Interativo para Busca de Automóveis
 
 Ferramenta demonstrativa em **Python** que oferece um **agente virtual** para busca interativa de automóveis diretamente no terminal.  
 O projeto utiliza **arquitetura cliente-servidor** baseada no **protocolo MCP (Model Context Protocol)**, com **armazenamento SQLite**, **geração automática de dados fictícios** e uma **suíte de testes automatizados** para validar filtros e comunicação.
@@ -72,4 +72,10 @@ python3 -m cars_arq.server_c2s
 ### Inicie o cliente
 ```bash
 python3 -m cars_arq.client_c2s
+```
+
+### tests 
+```bash
+pytests -v
+
 ```
