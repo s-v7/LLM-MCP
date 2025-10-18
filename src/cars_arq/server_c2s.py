@@ -9,7 +9,7 @@ from .protocol_mcp_c2s import  MCPEnvelope, ResultPayload, ErrorPayload, CarDTO
 from .db_c2s import query_cars
 
 
-# Servidor TCP simples com JSON Lines (1 mensagem por linha)
+# Servidor TCP simples com JSON Lines
 
 class MCPServer:
     def __init__(self, host: str, port: int) -> None:
@@ -49,7 +49,7 @@ class MCPServer:
                         ).model_dump()
                         for c in cars
                     ]
-                    payload = ResultPayload(items=items, total=len(items)).model_dump()
+                    payload = ResultPayload(items=items, total=len(items)).model_dump() # pyright: ignore[reportArgumentType]
                     resp = MCPEnvelope(kind="result", id=env.id, payload=payload)
                     _send_jsonl(conn, resp.model_dump())
                 except Exception as e:  # manter o server vivo e responder error

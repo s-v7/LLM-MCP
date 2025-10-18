@@ -40,14 +40,12 @@ KNOWN_MODELS = [
 
 
 TEST_QUERIES = [
-    # corretas (devem retornar algo em geral)
     "Sedan flex até 80.000 de 2018 pra cima",
     "SUV a diesel entre 2016 e 2019 em SP",
     "Toyota até 120000",
-    # “falsas”/difíceis (typos, restrições duras)
-    "quero HVR",                 # typo → HR-V
-    "tcross até 50 mil 2022",    # possivelmente muito barato → testar relax
-    "Picape elétrica 2015",      # combinação rara → relax/remover combustível
+    "quero HVR",                 
+    "tcross até 50 mil 2022",    
+    "Picape elétrica 2015",      
 ]
 
 PRICE_RE = re.compile(r"(\d{2,3}[\.]?\d{3}|\d{4,6})(?:\s*(?:reais|r\$))?", re.I)
@@ -87,7 +85,7 @@ def _fuzzy_one(token: str, population: list[str], *, cutoff: float = 0.7) -> Opt
     return matches[0] if matches else None
 
 
-def parse_user_query(text: str) -> dict:
+def parse_user_query(text: str) -> dict: # pyright: ignore[reportReturnType]
     """
     Extrai filtros a partir de frases livres.
     Retorna sempre dict (possivelmente vazio).
@@ -167,8 +165,6 @@ def parse_user_query(text: str) -> dict:
         if m:
             result["year_max"] = int(m.group(1))
 
-    # preço (prioriza marcadores de preço; evita capturar ANO como preço)
-    # 1) padrões com marcador explícito (até/no máximo/por até)
     w = re.search(r"\b(at[eé]|no maximo|no máximo|por at[eé])\s*([\d\.\, ]+(?:mil)?)", t)
     if w:
         p = _parse_money_raw(w.group(2))
@@ -186,7 +182,6 @@ def parse_user_query(text: str) -> dict:
             has_currency = bool(m2.group(1)) or ("mil" in m2.group(2))
             p = _parse_money_raw(m2.group(2))
             if p is not None:
-                # Evita anos caírem como preço
                 if has_currency or not _looks_like_year(p):
                     result["price_max"] = p
 
@@ -249,7 +244,7 @@ def mcp_query(filters: dict, *, host: Optional[str] = None, port: Optional[int] 
     except Exception as e:
         return {"kind": "error", "id": env["id"], "payload": {"message": f"Falha ao parsear resposta: {e}"}}
 
-def interactive_relax(filters: dict, *, ask: bool = True) -> dict:
+def interactive_relax(filters: dict, *, ask: bool = True) -> dict: # pyright: ignore[reportReturnType]
     new_filters = dict(filters)
 
 

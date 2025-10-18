@@ -11,6 +11,8 @@ from .models_c2s import Car
 
 faker = Faker("pt_BR")
 
+
+### para modelos reais interação com APIS_EXTERNAS || dados próprios ....
 MAKES_MODELS_BRL =  {
     "Toyota": ["Corolla", "Etios", "Yaris", "Hilux", "RAV4", "Corrolla Cross"],
     "Honda": ["Accord", "Civic", "Fit", "HR-V", "City"],
@@ -55,7 +57,6 @@ def seed(n: int = 150) -> None:
             drive = random.choice(DRIVETRAINS)
             price = round(random.uniform(25_000, 350_000), 2)
             city = faker.city()
-            # faker pt_BR: estado_sigla() costuma existir; se não, caia para duas letras aleatórias
             try:
                 state = faker.estado_sigla()
             except AttributeError:

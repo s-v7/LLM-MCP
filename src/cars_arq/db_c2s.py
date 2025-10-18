@@ -29,6 +29,7 @@ def query_cars(filters: dict) -> list[Car]:
     """Consulta com filtros dinâmicos seguros.
     Filtros aceitos: make, model, year_min, year_max, fuel_type, transmission
     price_min, price_max, mileage_max, body_type, color, city, state
+    ... 
     """
     stmt = select(Car)
     if make := filters.get("make"):

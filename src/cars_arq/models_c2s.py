@@ -25,3 +25,13 @@ class Car(Base):
     city: Mapped[str] = mapped_column(String(60), index=True)
     state: Mapped[str] = mapped_column(String(2), index=True)
     vin: Mapped[str] = mapped_column(String(24), unique=True)
+    
+    def __repr__(self) -> str:
+        return (
+            f"<Car id={self.id} {self.year} {self.make} {self.model} "
+            f"body_type={self.body_type} fuel_type={self.fuel_type} "
+            f"transmission={self.transmission} price={self.price}>"
+        )
+        
+    __str__ = __repr__
+        

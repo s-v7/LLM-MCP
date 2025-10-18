@@ -1,0 +1,10 @@
+Metadata-Version: 2.4
+Name: cars_c2s_mcp
+Version: 0.1.0
+Summary: Terminal agent + MCP-like client/server over TCP querying a vehicles DB
+Author: Silas Vasconcelos Cruz
+Requires-Dist: SQLAlchemy>=2.0
+Requires-Dist: pydantic>=2.7
+Requires-Dist: Faker>=25.0
+Requires-Dist: rich>=13.7
+Requires-Dist: pytest>=8.0

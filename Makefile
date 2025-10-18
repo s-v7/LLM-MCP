@@ -1,20 +1,22 @@
+.PHONY: setup seed run-server run-client test fmt
 
-.PHONY: setut seed run-server run-client test fmt
+VENV := .venv
+PY   := python3
 
 setup:
-	python -m venv .venv  && . ./venv/bin/activate && pip install -U pip && pip install -e .
+	$(PY) -m venv $(VENV) && . $(VENV)/bin/activate && pip install -U pip && pip install -e .
+
 seed:
-	. ./venv/bin/activate && python -m cars_arq.data_fake_c2s.py
+	. $(VENV)/bin/activate && $(PY) -m cars_arq.data_fake_c2s
 
 run-server:
-	. .venv/bin/activate && python -m cars_arq.server_c2s.py
+	. $(VENV)/bin/activate && $(PY) -m cars_arq.server_c2s
 
 run-client:
-	. .venv/bin/activate && python -m cars_arq.client
+	. $(VENV)/bin/activate && $(PY) -m cars_arq.client_c2s
 
 test:
-	. .venv/bin/activate && pytest
+	. $(VENV)/bin/activate && pytest -q
 
 fmt:
-	@echo "(Opcional) Use ruff/black se quiser adicionar"
-
+	@echo "(Opcional) Use ruff/black se quiser adicionar)"
