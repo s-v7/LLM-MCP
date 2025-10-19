@@ -74,8 +74,28 @@ python3 -m cars_arq.server_c2s
 python3 -m cars_arq.client_c2s
 ```
 
-### tests 
+### Tests Automatizados
 ```bash
-pytests -v
-
+pytest -v
+|| Via Makefile
+make test
 ```
+
+### Os testes verificam 
+- Filtros de busca e coerência dos resultad
+- Comunicação correta entre cliente e servidor via MCP.
+- Respostas esperadas do agente em interações simuladas.
+
+### Tecnologias Utilizadas
+- **Python 3.12+**
+- **SQLite/SQLAlchemy**
+- **Faker (dados fic..)
+- **pytest**
+- **PrettyTable (Formatação de resultados no terminal)**
+- **MCP Protocol (Model Context Protocol)**
+
+
+
+### Author
+- **[Silas Vasconcelos Cruz]
+Engginer: Full Stack Developer | Software: {"IA", "Blockchain"}**
