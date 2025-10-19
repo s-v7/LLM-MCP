@@ -96,6 +96,21 @@ pytest -v
 || Via Makefile
 make test
 ```
+---
+## Makefile (atalhos)
+
+Os principais comandos estão disponíveis via `make`:
+
+| Comando          | O que faz                                                                 |
+|------------------|---------------------------------------------------------------------------|
+| `make setup`     | Cria `.venv`, atualiza `pip` e instala o pacote em modo editável          |
+| `make seed`      | Gera/atualiza os dados fictícios no `cars.db`                             |
+| `make run-server`| Sobe o servidor MCP                                                       |
+| `make run-client`| Abre o cliente interativo (CLI)                                           |
+| `make test`      | Roda a suíte de testes (`pytest -q`)                                      |
+| `make fmt`       | Formatação/lint (opcional — ver notas abaixo)                             |
+
+> Dica de fluxo: `make setup && make seed && make run-server` (num terminal) e `make run-client` (em outro).
 
 ---
 
