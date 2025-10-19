@@ -1,7 +1,23 @@
-## LLM-MCP — Agente Virtual Interativo para Busca de Automóveis
+<h1 align="center">LLM-MCP — Agente Virtual Interativo para Busca de Automóveis</h1>
+<p align="center">
+  <em>Talk to your car database — natural language meets data intelligence.</em><br>
+  <a href="https://www.sv7analytics.com.br" target="_blank"><strong>sv7analytics.com.br</strong></a>
+</p>
 
-Ferramenta demonstrativa em **Python** que oferece um **agente virtual** para busca interativa de automóveis diretamente no terminal.  
-O projeto utiliza **arquitetura cliente-servidor** baseada no **protocolo MCP (Model Context Protocol)**, com **armazenamento SQLite**, **geração automática de dados fictícios** e uma **suíte de testes automatizados** para validar filtros e comunicação.
+<p align="center">
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.12+-blue.svg" alt="Python 3.12+"></a>
+  <a href="https://pypi.org/project/pytest/"><img src="https://img.shields.io/badge/tests-pytest%20✔-brightgreen" alt="pytest"></a>
+  <a href="https://www.sqlite.org/"><img src="https://img.shields.io/badge/database-SQLite-lightgrey.svg" alt="SQLite"></a>
+  <a href="https://faker.readthedocs.io/"><img src="https://img.shields.io/badge/data-Faker-yellow.svg" alt="Faker"></a>
+  <a href="https://modelcontextprotocol.io/"><img src="https://img.shields.io/badge/protocol-MCP-orange.svg" alt="Model Context Protocol"></a>
+</p>
+
+---
+
+##  Sobre o projeto
+
+**LLM-MCP** é um agente virtual interativo para busca de automóveis usando linguagem natural.
+  Ferramenta demonstrativa em **Python** que oferece um **agente virtual** para busca interativa de automóveis diretamente no terminal.  O projeto utiliza **arquitetura cliente-servidor** baseada no **protocolo MCP (Model Context Protocol)**, com **armazenamento SQLite**, **geração automática de dados fictícios** e uma **suíte de testes automatizados** para demonstrar integração inteligente entre NLP e bancos de dados estruturados.
 
 ---
 
@@ -81,20 +97,33 @@ pytest -v
 make test
 ```
 
+---
+
 ### Os testes verificam 
 - Filtros de busca e coerência dos resultad
 - Comunicação correta entre cliente e servidor via MCP.
 - Respostas esperadas do agente em interações simuladas.
 
+---
+
+### Exemplos de Consultas CLI
+- **preço até 70.000**
+- **sedan flex entre 2018 e 2020**
+- **SUV a diesel em SP**
+- **quero hvr 2023**
+- **picape elétrica até 120 mil**
+
+---
+
 ### Tecnologias Utilizadas
 - **Python 3.12+**
 - **SQLite/SQLAlchemy**
-- **Faker (dados fic..)
+- **Faker (dados fic..)**
 - **pytest**
 - **PrettyTable (Formatação de resultados no terminal)**
 - **MCP Protocol (Model Context Protocol)**
 
-
+---
 
 ### Author
 **Author:** [Silas Vasconcelos]  
