@@ -7,6 +7,7 @@ import socket
 import unicodedata
 import uuid
 from typing import Optional
+from decimal import Decimal, ROUND_DOWN
 
 from rich.console import Console
 from rich.table import Table
@@ -15,17 +16,7 @@ from .configs import Settings_Cars
 
 console = Console()
 
-COMMON_FUELS = {
-    "gasolina",
-    "etanol",
-    "flex",
-    "diesel",
-    "elétrico",
-    "eletrico",
-    "híbrido",
-    "hibrido",
-}
-
+COMMON_FUELS = {"gasolina", "etanol", "flex", "diesel", "elétrico", "eletrico", "híbrido", "hibrido"}
 COMMON_BODIES = {
     "hatch",
     "sedan",
@@ -151,10 +142,11 @@ def _parse_money_raw(token: str) -> Optional[int]:
     m = re.search(r"\d+(?:\.\d+)?", t)
     if not m:
         return None
-    val = float(m.group(0))
-    if mil_flag and val < 1000:
-        val *= 1000
-    return int(round(val))
+    val = Decimal(m.group(0))
+    if mil_flag and val < Decimal(1000):
+        val *= Decimal(1000)
+    val = val.quantize(Decimal("1"), rounding=ROUND_DOWN)
+    return int(val)
 
 
 def _fuzzy_one(token: str, population: list[str], *, cutoff: float = 0.7) -> Optional[str]:
@@ -297,14 +289,17 @@ def parse_user_query(text: str) -> dict:
                 result["body_type"] = body.upper() if body == "suv" else body
             break
 
-    for fuel in COMMON_FUELS:
-        if re.search(rf"\b{re.escape(fuel)}\b", t):
-            if fuel == "eletrico":
-                result["fuel_type"] = "elétrico"
-            elif fuel == "hibrido":
-                result["fuel_type"] = "híbrido"
-            else:
-                result["fuel_type"] = fuel
+    fuel_patterns = [
+        (r"\beletric\w*\b", "elétrico"),
+        (r"\bhibrid\w*\b", "híbrido"),
+        (r"\bdiesel\b", "diesel"),
+        (r"\bgasolina\b", "gasolina"),
+        (r"\betanol\b", "etanol"),
+        (r"\bflex\b", "flex"),
+    ]
+    for pat, fuel_norm in fuel_patterns:
+        if re.search(pat, t):
+            result["fuel_type"] = fuel_norm
             break
 
     for make in KNOWN_MAKES:

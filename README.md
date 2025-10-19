@@ -97,5 +97,6 @@ make test
 
 
 ### Author
-- **[Silas Vasconcelos Cruz]
-Engginer: Full Stack Developer | Software: {"IA", "Blockchain"}**
+**Author:** [Silas Vasconcelos]  
+**Engineer:** Full Stack Developer 
+

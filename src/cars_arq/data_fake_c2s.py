@@ -34,11 +34,9 @@ def _random_vin(length: int = 17) -> str:
     return "".join(random.choice(_VIN_CHARS) for _ in range(length))
 
 def seed(n: int = 150) -> None:
-    # garante que as tabelas existam
     create_schema()
 
     with session_scope() as s:
-        # evita semear duas vezes
         if s.execute(select(Car).limit(1)).first():
             print("Banco já possui dados; pulando seed.")
             return
