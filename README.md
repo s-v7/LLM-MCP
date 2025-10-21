@@ -59,10 +59,6 @@ LLM-MCP/
 ## Instalação e Execução
 
 ### Clone o repositório
-```bash
-git clone https://github.com/seu-usuario/LLM-MCP.git
-cd LLM-MCP
-```
 
 ### Crie um ambiente virtual (se necessário)
 ```bash
