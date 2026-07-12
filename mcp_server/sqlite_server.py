@@ -81,5 +81,32 @@ def get_car(car_id: int) -> dict | None:
         "state": car.state,
     }
 
+@mcp.resource("cars://{car_id}")
+def car_resource(car_id: str) -> dict | None:
+    """Expose a car as an MCP Resource."""
+
+    car = get_car_by_id(int(car_id))
+
+    if car is None:
+        return None
+
+    return {
+        "id": car.id,
+        "make": car.make,
+        "model": car.model,
+        "year": car.year,
+        "engine_cc": car.engine_cc,
+        "fuel_type": car.fuel_type,
+        "color": car.color,
+        "mileage_km": car.mileage_km,
+        "doors": car.doors,
+        "transmission": car.transmission,
+        "body_type": car.body_type,
+        "drivetrain": car.drivetrain,
+        "price": car.price,
+        "city": car.city,
+        "state": car.state,
+    }
+
 if __name__ == "__main__":
     mcp.run()
