@@ -1,5 +1,6 @@
 from mcp.server.fastmcp import FastMCP
 from cars_arq.db_c2s import query_cars
+from cars_arq.db_c2s import get_car_by_id, query_cars
 
 mcp = FastMCP("LLM-MCP SQLite Server")
 
@@ -53,6 +54,32 @@ def search_cars(
         for car in cars
     ]
 
+@mcp.tool()
+def get_car(car_id: int) -> dict | None:
+    """Return one car by its identifier."""
+
+    car = get_car_by_id(car_id)
+
+    if car is None:
+        return None
+
+    return {
+        "id": car.id,
+        "make": car.make,
+        "model": car.model,
+        "year": car.year,
+        "engine_cc": car.engine_cc,
+        "fuel_type": car.fuel_type,
+        "color": car.color,
+        "mileage_km": car.mileage_km,
+        "doors": car.doors,
+        "transmission": car.transmission,
+        "body_type": car.body_type,
+        "drivetrain": car.drivetrain,
+        "price": car.price,
+        "city": car.city,
+        "state": car.state,
+    }
 
 if __name__ == "__main__":
     mcp.run()
