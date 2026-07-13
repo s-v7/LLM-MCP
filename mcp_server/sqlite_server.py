@@ -108,5 +108,27 @@ def car_resource(car_id: str) -> dict | None:
         "state": car.state,
     }
 
+@mcp.resource("cars://state/{state}")
+def cars_by_state_resource(state: str) -> list[dict]:
+    """Expose cars filtered by Brazilian state."""
+
+    cars = query_cars({"state": state}, limit=10)
+
+    return [
+        {
+            "id": car.id,
+            "make": car.make,
+            "model": car.model,
+            "year": car.year,
+            "fuel_type": car.fuel_type,
+            "body_type": car.body_type,
+            "transmission": car.transmission,
+            "price": car.price,
+            "city": car.city,
+            "state": car.state,
+        }
+        for car in cars
+    ]
+
 if __name__ == "__main__":
     mcp.run()
