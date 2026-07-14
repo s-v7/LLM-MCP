@@ -130,5 +130,27 @@ def cars_by_state_resource(state: str) -> list[dict]:
         for car in cars
     ]
 
+@mcp.resource("cars://make/{make}")
+def cars_by_make_resource(make: str) -> list[dict]:
+    """Expose cars filtered by manufacturer."""
+    cars = query_cars({"make": make}, limit=10)
+    return [
+        {
+            "id": car.id,
+            "make": car.make,
+            "model": car.model,
+            "year": car.year,
+            "fuel_type": car.fuel_type,
+            "body_type": car.body_type,
+            "transmission": car.transmission,
+            "price": car.price,
+            "city": car.city,
+            "state": car.state
+        }
+        for car in cars
+
+    ]
+
+
 if __name__ == "__main__":
     mcp.run()
