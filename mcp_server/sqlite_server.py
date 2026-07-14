@@ -162,5 +162,18 @@ def cars_by_max_price_resource(value: str) -> list[dict]:
     return [_car_to_summary_dict(car) for car in cars]
 
 
+@mcp.resource("cars://price/min/{value}")
+def cars_by_min_price_resource(value: str) -> list[dict]:
+    """Expose cars with price greater than or equal to the provided value."""
+
+    try:
+        min_price = float(value)
+    except ValueError:
+        return []
+
+    cars = query_cars({"price_min": min_price}, limit=10)
+
+    return [_car_to_summary_dict(car) for car in cars]
+
 if __name__ == "__main__":
     mcp.run()

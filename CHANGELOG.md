@@ -28,6 +28,11 @@ O formato segue Semantic Versioning: MAJOR.MINOR.PATCH.
 - Tratamento de valor inválido;
 - Testes de limite máximo de preço.
 
+- Resource cars://price/min/{value};
+- Validação de valor inválido;
+- Testes para preço mínimo.
+
+
 - SDK oficial Model Context Protocol
 - Servidor SQLite com FastMCP
 - Tool `healthcheck`
