@@ -14,11 +14,11 @@ O formato segue Semantic Versioning: MAJOR.MINOR.PATCH.
 - Testes para combustível existente e inexistente.
 - Resource cars://body/{body_type} para consulta por carroceria;
 - Testes para carroceria existente e inexistente.
+- Resource cars://year/{year} para consulta por ano;
+- Testes para ano existente e inexistente;
+- Sprint 2A concluída com Resources básicos.
 
 ### Planejado
-- Resource `cars://city/{city}`
-- Testes dedicados para cada Resource
-- Atualização da documentação da Sprint 2
 
 ## [0.2.0] — MCP Foundation
 
