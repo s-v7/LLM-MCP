@@ -1,9 +1,8 @@
+
 from mcp.server.fastmcp import FastMCP
-from cars_arq.db_c2s import query_cars
 from cars_arq.db_c2s import get_car_by_id, query_cars
 
 mcp = FastMCP("LLM-MCP SQLite Server")
-
 
 @mcp.tool()
 def healthcheck() -> dict[str, str]:
