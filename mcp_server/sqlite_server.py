@@ -151,5 +151,16 @@ def cars_by_year_resource(year: str) -> list[dict]:
 
     return [_car_to_summary_dict(car) for car in cars]
 
+@mcp.resource("cars://price/max/{value}")
+def cars_by_max_price_resource(value: str) -> list[dict]:
+    "Expose cars with price less than or equal to the provided value."""
+    try:
+        max_price = float(value)
+    except ValueError:
+        return []
+    cars = query_cars({"price_max": max_price}, limit=10)
+    return [_car_to_summary_dict(car) for car in cars]
+
+
 if __name__ == "__main__":
     mcp.run()
