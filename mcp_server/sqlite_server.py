@@ -4,6 +4,41 @@ from cars_arq.db_c2s import get_car_by_id, query_cars
 
 mcp = FastMCP("LLM-MCP SQLite Server")
 
+def _car_to_summary_dict(car) -> dict:
+    return {
+        "id": car.id,
+        "make": car.make,
+        "model": car.model,
+        "year": car.year,
+        "fuel_type": car.fuel_type,
+        "body_type": car.body_type,
+        "transmission": car.transmission,
+        "price": car.price,
+        "city": car.city,
+        "state": car.state,
+    }
+
+
+def _car_to_detail_dict(car) -> dict:
+    return {
+        "id": car.id,
+        "make": car.make,
+        "model": car.model,
+        "year": car.year,
+        "engine_cc": car.engine_cc,
+        "fuel_type": car.fuel_type,
+        "color": car.color,
+        "mileage_km": car.mileage_km,
+        "doors": car.doors,
+        "transmission": car.transmission,
+        "body_type": car.body_type,
+        "drivetrain": car.drivetrain,
+        "price": car.price,
+        "city": car.city,
+        "state": car.state,
+    }
+
+
 @mcp.tool()
 def healthcheck() -> dict[str, str]:
     """Return the current status of the MCP server."""
@@ -37,21 +72,7 @@ def search_cars(
 
     cars = query_cars(filters, limit=limit)
 
-    return [
-        {
-            "id": car.id,
-            "make": car.make,
-            "model": car.model,
-            "year": car.year,
-            "fuel_type": car.fuel_type,
-            "body_type": car.body_type,
-            "transmission": car.transmission,
-            "price": car.price,
-            "city": car.city,
-            "state": car.state,
-        }
-        for car in cars
-    ]
+    return [_car_to_summary_dict(car) for car in cars]
 
 @mcp.tool()
 def get_car(car_id: int) -> dict | None:
@@ -62,23 +83,8 @@ def get_car(car_id: int) -> dict | None:
     if car is None:
         return None
 
-    return {
-        "id": car.id,
-        "make": car.make,
-        "model": car.model,
-        "year": car.year,
-        "engine_cc": car.engine_cc,
-        "fuel_type": car.fuel_type,
-        "color": car.color,
-        "mileage_km": car.mileage_km,
-        "doors": car.doors,
-        "transmission": car.transmission,
-        "body_type": car.body_type,
-        "drivetrain": car.drivetrain,
-        "price": car.price,
-        "city": car.city,
-        "state": car.state,
-    }
+    return _car_to_detail_dict(car)
+
 
 @mcp.resource("cars://{car_id}")
 def car_resource(car_id: str) -> dict | None:
@@ -89,23 +95,7 @@ def car_resource(car_id: str) -> dict | None:
     if car is None:
         return None
 
-    return {
-        "id": car.id,
-        "make": car.make,
-        "model": car.model,
-        "year": car.year,
-        "engine_cc": car.engine_cc,
-        "fuel_type": car.fuel_type,
-        "color": car.color,
-        "mileage_km": car.mileage_km,
-        "doors": car.doors,
-        "transmission": car.transmission,
-        "body_type": car.body_type,
-        "drivetrain": car.drivetrain,
-        "price": car.price,
-        "city": car.city,
-        "state": car.state,
-    }
+    return _car_to_detail_dict(car)
 
 @mcp.resource("cars://state/{state}")
 def cars_by_state_resource(state: str) -> list[dict]:
@@ -113,84 +103,27 @@ def cars_by_state_resource(state: str) -> list[dict]:
 
     cars = query_cars({"state": state}, limit=10)
 
-    return [
-        {
-            "id": car.id,
-            "make": car.make,
-            "model": car.model,
-            "year": car.year,
-            "fuel_type": car.fuel_type,
-            "body_type": car.body_type,
-            "transmission": car.transmission,
-            "price": car.price,
-            "city": car.city,
-            "state": car.state,
-        }
-        for car in cars
-    ]
+    return [_car_to_summary_dict(car) for car in cars]
 
 @mcp.resource("cars://make/{make}")
 def cars_by_make_resource(make: str) -> list[dict]:
     """Expose cars filtered by manufacturer."""
     cars = query_cars({"make": make}, limit=10)
-    return [
-        {
-            "id": car.id,
-            "make": car.make,
-            "model": car.model,
-            "year": car.year,
-            "fuel_type": car.fuel_type,
-            "body_type": car.body_type,
-            "transmission": car.transmission,
-            "price": car.price,
-            "city": car.city,
-            "state": car.state
-        }
-        for car in cars
-
-    ]
+    return [_car_to_summary_dict(car) for car in cars]
 
 
 @mcp.resource("cars://model/{model}")
 def cars_by_model_resource(model: str) -> list[dict]:
     """Expose cars filtered by model."""
     cars = query_cars({"model": model}, limit=10)
-    return [
-        {
-            "id": car.id,
-            "make": car.make,
-            "model": car.model,
-            "year": car.year,
-            "fuel_type": car.fuel_type,
-            "body_type": car.body_type,
-            "transmission": car.transmission,
-            "price": car.price,
-            "city": car.city,
-            "state": car.state
-        }
-        for car in cars
-    ]
+    return [_car_to_summary_dict(car) for car in cars]
 
 
 @mcp.resource("cars://fuel/{fuel_type}")
 def cars_by_fuel_resource(fuel_type: str) -> list[dict]:
     """Expose cars filtered by fuel type."""
     cars = query_cars({"fuel_type": fuel_type}, limit=10)
-    return [
-        {
-            "id": car.id,
-            "make": car.make,
-            "model": car.model,
-            "year": car.year,
-            "fuel_type": car.fuel_type,
-            "body_type": car.body_type,
-            "transmission": car.transmission,
-            "price": car.price,
-            "city": car.city,
-            "state": car.state
-        }
-        for car in cars
-    ]
+    return [_car_to_summary_dict(car) for car in cars]
 
 @mcp.resource("cars://body/{body_type}")
 def cars_by_body_resource(body_type: str) -> list[dict]:
@@ -198,21 +131,7 @@ def cars_by_body_resource(body_type: str) -> list[dict]:
 
     cars = query_cars({"body_type": body_type}, limit=10)
 
-    return [
-        {
-            "id": car.id,
-            "make": car.make,
-            "model": car.model,
-            "year": car.year,
-            "fuel_type": car.fuel_type,
-            "body_type": car.body_type,
-            "transmission": car.transmission,
-            "price": car.price,
-            "city": car.city,
-            "state": car.state,
-        }
-        for car in cars
-    ]
+    return [_car_to_summary_dict(car) for car in cars]
 
 @mcp.resource("cars://year/{year}")
 def cars_by_year_resource(year: str) -> list[dict]:
@@ -226,20 +145,7 @@ def cars_by_year_resource(year: str) -> list[dict]:
         limit=10,
     )
 
-    return [
-        {
-            "id": car.id,
-            "make": car.make,
-            "model": car.model,
-            "year": car.year,
-            "fuel_type": car.fuel_type,
-            "body_type": car.body_type,
-            "transmission": car.transmission,
-            "price": car.price,
-            "city": car.city,
-            "state": car.state,
-        }
-        for car in cars
-    ]
+    return [_car_to_summary_dict(car) for car in cars]
+
 if __name__ == "__main__":
     mcp.run()
