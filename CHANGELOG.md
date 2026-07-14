@@ -10,10 +10,10 @@ O formato segue Semantic Versioning: MAJOR.MINOR.PATCH.
 - Testes dedicados para filtro por marca e marca inexistente
 - Resource `cars://model/{model}` para consulta de veículos por modelo
 - Testes dedicados para modelo existente e inexistente
+- Resource cars://fuel/{fuel_type} para consulta por combustível;
+- Testes para combustível existente e inexistente.
 
 ### Planejado
-- Resource `cars://fuel/{fuel_type}`
-- Resource `cars://body/{body_type}`
 - Resource `cars://year/{year}`
 - Resource `cars://city/{city}`
 - Testes dedicados para cada Resource
