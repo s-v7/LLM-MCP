@@ -10,3 +10,6 @@ def test_cars_by_year_resource_filters_year():
 
 def test_cars_by_year_resource_returns_empty_list_for_unknown_year():
     assert cars_by_year_resource("1900") == []
+
+def test_cars_by_year_resource_invalid_year_returns_empty():
+    assert cars_by_year_resource("abc") == []

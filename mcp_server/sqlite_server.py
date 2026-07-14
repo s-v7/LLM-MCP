@@ -136,11 +136,15 @@ def cars_by_body_resource(body_type: str) -> list[dict]:
 @mcp.resource("cars://year/{year}")
 def cars_by_year_resource(year: str) -> list[dict]:
     """Expose cars filtered by manufacturing year."""
+    try:
+        year_value = int(year)
+    except ValueError:
+        return []
 
     cars = query_cars(
         {
-            "year_min": int(year),
-            "year_max": int(year),
+            "year_min": year_value,
+            "year_max": year_value,
         },
         limit=10,
     )
