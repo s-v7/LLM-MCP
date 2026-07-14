@@ -12,9 +12,10 @@ O formato segue Semantic Versioning: MAJOR.MINOR.PATCH.
 - Testes dedicados para modelo existente e inexistente
 - Resource cars://fuel/{fuel_type} para consulta por combustível;
 - Testes para combustível existente e inexistente.
+- Resource cars://body/{body_type} para consulta por carroceria;
+- Testes para carroceria existente e inexistente.
 
 ### Planejado
-- Resource `cars://year/{year}`
 - Resource `cars://city/{city}`
 - Testes dedicados para cada Resource
 - Atualização da documentação da Sprint 2
