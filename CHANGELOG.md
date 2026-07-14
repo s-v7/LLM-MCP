@@ -6,9 +6,11 @@ O formato segue Semantic Versioning: MAJOR.MINOR.PATCH.
 
 ## [Unreleased] — Sprint 2: Resources & Collections
 
-### Planejado
+- Resource `cars://make/{make}` para consulta de veículos por fabricante
+- Testes dedicados para filtro por marca e marca inexistente
 
-- Resource `cars://make/{make}`
+
+### Planejado
 - Resource `cars://model/{model}`
 - Resource `cars://fuel/{fuel_type}`
 - Resource `cars://body/{body_type}`
