@@ -25,7 +25,7 @@ def session_scope():
         session.close()
 
 
-def query_cars(filters: dict) -> list[Car]:
+def query_cars(filters: dict, limit: int = 10) -> list[Car]:
     """Consulta com filtros dinâmicos seguros.
     Filtros aceitos: make, model, year_min, year_max, fuel_type, transmission
     price_min, price_max, mileage_max, body_type, color, city, state
@@ -60,4 +60,11 @@ def query_cars(filters: dict) -> list[Car]:
         stmt = stmt.where(Car.mileage_km <= int(filters["mileage_max"]))
     
     with session_scope() as s:
-        return list(s.scalars(stmt.limit(100)))
+        safe_limit = max(1, min(int(limit), 10))
+        return list(s.scalars(stmt.limit(safe_limit)))
+
+
+def get_car_by_id(car_id: int) -> Car | None:
+    """Return one car by its primary key."""
+    with session_scope() as session:
+        return session.get(Car, int(car_id))

@@ -16,3 +16,11 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
+
+# Local/private notes
+acomp.local.txt
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+.env

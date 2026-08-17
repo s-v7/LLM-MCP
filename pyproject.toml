@@ -13,6 +13,7 @@ dependencies = [
 	"Faker>=25.0",
 	"rich>=13.7",
 	"pytest>=8.0",
+	"mcp[cli]>=1.28,<2.0",
 ]
 
 [tool.pytest.ini_options]
